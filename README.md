@@ -5,8 +5,8 @@
 This bot will redirect all **text** messages to a private group. Group members (admin(s) of a channel for example) can answer the users by replying to the message and the bot will relay the message without revealing the identity of the group admin(s). It helps a lot in making your inbox clean.
 
 ### Other Features:
-- Message flood protection
-- Ability to ban/unban people from using the bot
+- Message flood protection - Users are permitted to send only 2 messages within a short timeframe. Attempts at spamming result in a ban after a specified duration. You can 
+- Ability to ban/unban people from using the bot - You have the option to ban specific users (e.g., those who are disruptive) from sending messages. Should you wish to unban a user manually, this is also possible.
 - Redirects only text messages for ease of use and security
 - Writes all logs to a file
 
@@ -32,6 +32,10 @@ TELEGRAM_GROUP_ID="YYYYYYYYYYY"
 pip install -r requirements.txt
 python3 main.py
 ```
+## How to use the bot
+- Answer the message: Reply to the message redirected to the group, it will be sent to that user via the bot.
+- Ban a user: To ban a user, reply to their message and type "/ban" (excluding the double quotation marks), then send the message. The bot will confirm the action. The banned user will not be notified until they attempt to send a new message.
+- Unban a user: DO NOT REPLY to the message. Instead, copy the User ID (the integer displayed in the message they send) and type the following: "/unban 111111111" (ignore "" and replace 11111111 with the appropriate User ID), then send the message. The bot will confirm if the action is successful.
 
 
 You are done, enjoy 😊
