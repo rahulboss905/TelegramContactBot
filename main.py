@@ -29,6 +29,8 @@ banned_users = {}
 user_timestamps = {}
 flood_attempts = {}
 
+known_users = set()  # Track all users
+
 
 ############ FUNCTIONS ############
 
@@ -142,6 +144,7 @@ clear_schedules.start()
 # handle '/start' command
 @bot.message_handler(commands=['start'])
 def handle_start(message):
+    known_users.add(message.from_user.id)
     user_id = message.from_user.id
     if is_user_banned(user_id):
         bot.reply_to(message, 'Sorry, you are banned from using this bot.')
@@ -160,6 +163,7 @@ def handle_start(message):
 # handle '/help' command
 @bot.message_handler(commands=['help'])
 def handle_help(message):
+    known_users.add(message.from_user.id)
     user_id = message.from_user.id
     if is_user_banned(user_id):
         bot.reply_to(message, 'Sorry, you are banned from using this bot.')
@@ -247,9 +251,31 @@ def group_commands(message):
             bot.reply_to(message, "Could not find the original sender's ID in the message.")
             logging.error(f"Failed to send reply to the original sender.")
 
+@bot.message_handler(func=lambda m: m.chat.id == int(GROUP_ID) and m.text.startswith('/broadcast'))
+def broadcast_message(message):
+    if not message.reply_to_message:
+        bot.reply_to(message, "Please reply to a message (text/media) you want to broadcast to all users.")
+        return
+
+    success = 0
+    fail = 0
+
+    for uid in known_users:
+        try:
+            bot.copy_message(chat_id=uid, from_chat_id=message.chat.id, message_id=message.reply_to_message.message_id)
+            success += 1
+        except Exception as e:
+            logging.warning(f"Failed to send broadcast to {uid}: {e}")
+            fail += 1
+
+    bot.reply_to(message, f"Broadcast sent to {success} users, failed for {fail}.")
+    logging.info(f"Broadcast completed. Success: {success}, Fail: {fail}")
+
+
 # handle text messages
 @bot.message_handler(func=lambda message: True, content_types=['text'])
 def handle_messages(message):
+    known_users.add(message.from_user.id)
     user_id = message.from_user.id
     if is_user_banned(user_id):
         bot.reply_to(message, 'Sorry, you are banned from using this bot.')
